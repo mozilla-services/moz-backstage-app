@@ -1,9 +1,12 @@
+import { Router } from 'express';
+
+import { stringifyEntityRef } from '@backstage/catalog-model';
 import {
   createRouter,
-  providers,
   defaultAuthProviderFactories,
+  providers,
 } from '@backstage/plugin-auth-backend';
-import { Router } from 'express';
+
 import { PluginEnvironment } from '../types';
 
 export default async function createPlugin(
@@ -47,6 +50,33 @@ export default async function createPlugin(
             });
           },
           // resolver: providers.github.resolvers.usernameMatchingUserEntityName(),
+        },
+      }),
+      'gcp-iap': providers.gcpIap.create({
+        // Replace the auth handler if you want to customize the returned user
+        // profile info (can be left out; the default implementation is shown
+        // below which only returns the email). You may want to amend this code
+        // with something that loads additional user profile data out of e.g.
+        // GSuite or LDAP or similar.
+        async authHandler({ iapToken }) {
+          return { profile: { email: iapToken.email } };
+        },
+        signIn: {
+          // You need to supply an identity resolver, that takes the profile
+          // and the IAP token and produces the Backstage token with the
+          // relevant user info.
+          async resolver({ profile, result: { iapToken } }, ctx) {
+            // Somehow compute the Backstage token claims. Just some sample code
+            // shown here, but you may want to query your LDAP server, or
+            // GSuite or similar, based on the IAP token sub/email claims
+            const id = iapToken.email.split('@')[0];
+            const sub = stringifyEntityRef({ kind: 'User', name: id });
+            const ent = [
+              sub,
+              stringifyEntityRef({ kind: 'Group', name: 'team-name' }),
+            ];
+            return ctx.issueToken({ claims: { sub, ent } });
+          },
         },
       }),
     },
