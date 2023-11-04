@@ -84,9 +84,9 @@ RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid
 COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./
 
 # Copy any other files that we need at runtime
-COPY --chown=node:node app-config.yaml ./
+COPY --chown=node:node app-config*.yaml ./
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV production
 
-CMD ["node", "packages/backend", "--config", "app-config.yaml"]
+CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]
