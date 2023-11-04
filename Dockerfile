@@ -76,10 +76,10 @@ USER node
 WORKDIR /app
 
 # Copy the install dependencies from the build stage and context
-COPY --from=build --chown=node:node /app/yarn.lock /app/.yarnrc.yaml /app/.yarn/ /app/package.json /app/packages/backend/dist/skeleton/ ./
+COPY --from=build --chown=node:node /app/yarn.lock /app/.yarnrc.yml /app/package.json /app/packages/backend/dist/skeleton/ ./
+COPY --from=build --chown=node:node /app/.yarn ./.yarn
 
-RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
-    yarn install --frozen-lockfile --production --network-timeout 600000
+RUN yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
 
 # Copy the built packages from the build stage
 COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./

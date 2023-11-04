@@ -8,6 +8,8 @@
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "outDir": "dist-types",
     "rootDir": "."
   }
