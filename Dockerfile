@@ -1,13 +1,5 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18-bookworm-slim AS packages
-RUN set -x \
-    && addgroup --gid 10001 app \
-    && adduser --disabled-password \
-    --gecos '' \
-    --gid 10001 \
-    --home /build \
-    --uid 10001 \
-    app
 
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -22,6 +14,14 @@ RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {
 
 # Stage 2 - Install dependencies and build packages
 FROM node:18-bookworm-slim AS build
+RUN set -x \
+    && addgroup --gid 10001 app \
+    && adduser --disabled-password \
+    --gecos '' \
+    --gid 10001 \
+    --home /build \
+    --uid 10001 \
+    app
 
 # Install isolate-vm dependencies, these are needed by the @backstage/plugin-scaffolder-backend.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -37,14 +37,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 #    apt-get update && \
 #    apt-get install -y --no-install-recommends libsqlite3-dev
 
-USER node
+USER app
 WORKDIR /app
 
 COPY --from=packages --chown=app:app /app .
 
 # Stop cypress from downloading it's massive binary.
 ENV CYPRESS_INSTALL_BINARY=0
-RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
+RUN --mount=type=cache,target=/build/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
     yarn install --frozen-lockfile --network-timeout 600000
 
 COPY --chown=app:app . .
@@ -60,6 +60,14 @@ RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle \
 
 # Stage 3 - Build the actual backend image and install production dependencies
 FROM node:18-bookworm-slim
+RUN set -x \
+    && addgroup --gid 10001 app \
+    && adduser --disabled-password \
+    --gecos '' \
+    --gid 10001 \
+    --home /build \
+    --uid 10001 \
+    app
 
 # Install isolate-vm dependencies, these are needed by the @backstage/plugin-scaffolder-backend.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
