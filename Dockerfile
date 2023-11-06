@@ -1,5 +1,13 @@
 # Stage 1 - Create yarn install skeleton layer
 FROM node:18-bookworm-slim AS packages
+RUN set -x \
+    && addgroup --gid 10001 app \
+    && adduser --disabled-password \
+    --gecos '' \
+    --gid 10001 \
+    --home /build \
+    --uid 10001 \
+    app
 
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -32,14 +40,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 USER node
 WORKDIR /app
 
-COPY --from=packages --chown=node:node /app .
+COPY --from=packages --chown=app:app /app .
 
 # Stop cypress from downloading it's massive binary.
 ENV CYPRESS_INSTALL_BINARY=0
 RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
     yarn install --frozen-lockfile --network-timeout 600000
 
-COPY --chown=node:node . .
+COPY --chown=app:app . .
 
 RUN yarn tsc
 RUN yarn --cwd packages/backend build
@@ -68,7 +76,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 #    apt-get install -y --no-install-recommends libsqlite3-dev
 
 # From here on we use the least-privileged `node` user to run the backend.
-USER node
+USER app
 
 # This should create the app dir as `node`.
 # If it is instead created as `root` then the `tar` command below will fail: `can't create directory 'packages/': Permission denied`.
@@ -76,16 +84,16 @@ USER node
 WORKDIR /app
 
 # Copy the install dependencies from the build stage and context
-COPY --from=build --chown=node:node /app/yarn.lock /app/.yarnrc.yml /app/package.json /app/packages/backend/dist/skeleton/ ./
-COPY --from=build --chown=node:node /app/.yarn ./.yarn
+COPY --from=build --chown=app:app /app/yarn.lock /app/.yarnrc.yml /app/package.json /app/packages/backend/dist/skeleton/ ./
+COPY --from=build --chown=app:app /app/.yarn ./.yarn
 
 RUN yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
 
 # Copy the built packages from the build stage
-COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./
+COPY --from=build --chown=app:app /app/packages/backend/dist/bundle/ ./
 
 # Copy any other files that we need at runtime
-COPY --chown=node:node app-config*.yaml ./
+COPY --chown=app:app app-config*.yaml ./
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV production
