@@ -34,10 +34,12 @@ backend:
     connection: redis://${REDIS_USER}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}
     useRedisSets: true
 
+
+integrations:
   github:
     - host: github.com
       apps:
-        - $include: moz-backstage-app-credentials.yaml
+        - $include: keys/moz-backstage-gh-app-credentials.yaml
 
 catalog:
   # Overrides the default list locations from app-config.yaml as these contain example data.
