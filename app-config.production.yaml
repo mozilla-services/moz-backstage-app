@@ -31,7 +31,7 @@ backend:
   # config options: https://backstage.io/docs/overview/architecture-overview/#cache
   cache:
     store: redis
-    connection: redis://${REDIS_USER}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}
+    connection: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT} # Don't set username when using authstring /w older redis versions
     useRedisSets: true
 
 
