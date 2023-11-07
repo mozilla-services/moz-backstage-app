@@ -71,7 +71,7 @@ export default async function createPlugin(
             // shown here, but you may want to query your LDAP server, or
             // GSuite or similar, based on the IAP token sub/email claims
             const [id, domain] = iapToken.email.split('@');
-            if (domain !== 'mozilla.org') {
+            if (domain !== 'mozilla.com') {
               throw new Error(
                 `Login failed, this email ${iapToken.email} does not belong to the expected domain`,
               );
