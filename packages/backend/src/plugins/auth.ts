@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { stringifyEntityRef } from '@backstage/catalog-model';
+import { stringifyEntityRef, DEFAULT_NAMESPACE } from '@backstage/catalog-model';
 import {
   createRouter,
   defaultAuthProviderFactories,
@@ -66,16 +66,33 @@ export default async function createPlugin(
           // and the IAP token and produces the Backstage token with the
           // relevant user info.
           async resolver({ profile, result: { iapToken } }, ctx) {
+
             // Somehow compute the Backstage token claims. Just some sample code
             // shown here, but you may want to query your LDAP server, or
             // GSuite or similar, based on the IAP token sub/email claims
-            const id = iapToken.email.split('@')[0];
-            const sub = stringifyEntityRef({ kind: 'User', name: id });
-            const ent = [
-              sub,
-              stringifyEntityRef({ kind: 'Group', name: 'team-name' }),
-            ];
-            return ctx.issueToken({ claims: { sub, ent } });
+            const [id, domain] = iapToken.email.split('@');
+            if (domain !== 'mozilla.org') {
+              throw new Error(
+                `Login failed, this email ${iapToken.email} does not belong to the expected domain`,
+              );
+            }
+            const userEntity = stringifyEntityRef({
+              kind: 'User',
+              name: id,
+              namespace: DEFAULT_NAMESPACE,
+            });
+            return ctx.issueToken({
+              claims: {
+                sub: userEntity,
+                ent: [userEntity],
+              },
+            });
+            // const sub = stringifyEntityRef({ kind: 'User', name: id });
+            // const ent = [
+            //   sub,
+            //   stringifyEntityRef({ kind: 'Group', name: 'team-name' }),
+            // ];
+            // return ctx.issueToken({ claims: { sub, ent } });
           },
         },
       }),
