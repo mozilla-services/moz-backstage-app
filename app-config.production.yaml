@@ -50,6 +50,35 @@ catalog:
       target: ../../scaffolder-templates/*/template.yaml
       rules:
         - allow: [Template]
+  providers:
+    github:
+      # the provider ID can be any camelCase string
+      mozillaServicesProviderId:
+        organization: 'mozilla-services'
+        catalogPath: '/catalog-info.yaml'
+        validateLocationsExist: true
+        filters:
+          branch: 'main'
+          repository: 'merino-py' # Regex
+          visibility:
+            - public
+        schedule: # same options as in TaskScheduleDefinition
+          # supports cron, ISO duration, "human duration" as used in code
+          frequency: { minutes: 60 }
+          # supports ISO duration, "human duration" as used in code
+          timeout: { minutes: 3 }
+      mozillaProviderId:
+        organization: 'mozilla'
+        catalogPath: '/catalog-info.yaml'
+        validateLocationsExist: true
+        filters:
+          branch: 'main'
+          repository: 'fxa' # Regex
+          visibility:
+            - public
+        schedule:
+          frequency: { minutes: 60 }
+          timeout: { minutes: 3 }
 
 auth:
   providers:
