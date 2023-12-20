@@ -23,8 +23,8 @@ export default async function createPlugin(
       orgUrl: 'https://github.com/mozilla-services',
       logger: env.logger,
       schedule: env.scheduler.createScheduledTaskRunner({
-        frequency: { minutes: 60 },
-        timeout: { minutes: 15 },
+        frequency: { minutes: 15 },
+        timeout: { minutes: 5 },
       }),
     }),
   );
