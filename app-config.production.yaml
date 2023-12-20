@@ -48,7 +48,11 @@ catalog:
   # on how to get entities into the catalog.
   locations:
     - type: file
-      target: ../../scaffolder-templates/*/template.yaml
+      target: ../../scaffolder-templates/add-github-branch-protection/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../scaffolder-templates/create-rfc/template.yaml
       rules:
         - allow: [Template]
   providers:
