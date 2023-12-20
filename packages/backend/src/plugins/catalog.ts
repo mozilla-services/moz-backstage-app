@@ -20,7 +20,7 @@ export default async function createPlugin(
   builder.addEntityProvider(
     GithubOrgEntityProvider.fromConfig(env.config, {
       id: 'production',
-      orgUrl: 'https://github.com/mozilla',
+      orgUrl: 'https://github.com/mozilla-services',
       logger: env.logger,
       schedule: env.scheduler.createScheduledTaskRunner({
         frequency: { minutes: 60 },
