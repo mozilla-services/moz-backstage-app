@@ -11,3 +11,11 @@ spec:
   type: website
   owner: john@example.com
   lifecycle: experimental
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: engineering
+  description: The default group for PoC
+spec:
+  type: business-unit
