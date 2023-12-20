@@ -40,6 +40,7 @@ integrations:
     - host: github.com
       apps:
         - $include: keys/moz-backstage-gh-app-credentials.yaml
+        - $include: keys/moz-backstage-template-app-credentials.yaml
 
 catalog:
   # Overrides the default list locations from app-config.yaml as these contain example data.
