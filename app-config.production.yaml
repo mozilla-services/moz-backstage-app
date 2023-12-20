@@ -48,10 +48,6 @@ catalog:
   # on how to get entities into the catalog.
   locations:
     - type: file
-      target: /app/scaffolder-templates/add-github-branch-protection/template.yaml
-      rules:
-        - allow: [Template]
-    - type: file
       target: /app/scaffolder-templates/*/template.yaml
       rules:
         - allow: [Template]
