@@ -102,6 +102,7 @@ COPY --from=build --chown=app:app /app/packages/backend/dist/bundle/ ./
 
 # Copy any other files that we need at runtime
 COPY --chown=app:app app-config*.yaml ./
+COPY --chown=app:app scaffolder-templates/ ./
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV production
