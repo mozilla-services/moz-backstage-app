@@ -42,7 +42,7 @@ spec:
     - id: fetch-template
       action: fetch:template
       input:
-        url: ./create-rfc/skeleton
+        url: ./skeleton
         templateFileExtension: true
         targetPath: docs/rfcs/${{ parameters.rfcNumber }}
         values:
