@@ -43,7 +43,7 @@ jobs:
         with:
           context: . # Expecting the multi-stage build from here: https://backstage.io/docs/deployment/docker/#multi-stage-build
           tags: |
-            ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/moz-backstage-app:${{ GITHUB_SHA }}
+            ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/moz-backstage-app:${{ github.sha }}
             ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/moz-backstage-app:latest
           push: true
           cache-from: type=gha
