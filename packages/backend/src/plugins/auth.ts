@@ -81,10 +81,15 @@ export default async function createPlugin(
               name: id,
               namespace: DEFAULT_NAMESPACE,
             });
+            const groupEntity = stringifyEntityRef({
+              kind: 'Group',
+              name: 'engineering',
+              namespace: DEFAULT_NAMESPACE,
+            });
             return ctx.issueToken({
               claims: {
                 sub: userEntity,
-                ent: [userEntity],
+                ent: [userEntity, groupEntity],
               },
             });
             // const sub = stringifyEntityRef({ kind: 'User', name: id });

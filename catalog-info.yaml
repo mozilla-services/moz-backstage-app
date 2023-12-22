@@ -2,12 +2,18 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: moz-backstage-app
-  description: An example of a Backstage application.
-  # Example for optional annotations
-  # annotations:
-  #   github.com/project-slug: backstage/backstage
-  #   backstage.io/techdocs-ref: dir:.
+  description: Backstage Proof of Concept Application
+  annotations:
+    github.com/project-slug: mozilla-services/moz-backstage-app
 spec:
   type: website
-  owner: john@example.com
+  owner: rapid-release-model
   lifecycle: experimental
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: engineering
+  description: The default group for PoC
+spec:
+  type: business-unit
