@@ -64,4 +64,4 @@ spec:
         repoUrl: ${{ parameters.repoUrl }}
         branchName: RFC-${{ parameters.rfcNumber }}_${{ parameters.rfcTitle | replace(" ", "-") | replace("\"", "") | replace ("'", "") | lower }}
         title: RFC-${{ parameters.rfcNumber }} - ${{ parameters.rfcTitle }}
-        description: ${{ parameters.abstract }}
+        description: Abstract - ${{ parameters.abstract }}
