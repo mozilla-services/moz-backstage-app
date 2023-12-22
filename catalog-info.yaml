@@ -3,17 +3,15 @@ kind: Component
 metadata:
   name: moz-backstage-app
   description: Backstage Proof of Concept Application
+  links:
+    - url: https://backstage.io/docs/overview/what-is-backstage
+      title: Backstage Docs
   annotations:
     github.com/project-slug: mozilla-services/moz-backstage-app
+  tags:
+    - gcpv2
+    - sandbox
 spec:
   type: website
   owner: rapid-release-model
   lifecycle: experimental
----
-apiVersion: backstage.io/v1alpha1
-kind: Group
-metadata:
-  name: engineering
-  description: The default group for PoC
-spec:
-  type: business-unit
