@@ -60,7 +60,7 @@ catalog:
         validateLocationsExist: true
         filters:
           branch: 'main'
-          repository: 'merino-py' # Regex
+          repository: '.*' # Regex
           visibility:
             - public
         schedule: # same options as in TaskScheduleDefinition
