@@ -82,6 +82,11 @@ catalog:
           timeout: { minutes: 3 }
 
 auth:
+  environment: production
   providers:
     gcp-iap:
       audience: ${GCP_IAP_AUDIENCE}
+    github: # GitHub auth required for workflow data for service components
+      production:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
