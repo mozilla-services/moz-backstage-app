@@ -85,3 +85,6 @@ auth:
   providers:
     gcp-iap:
       audience: ${GCP_IAP_AUDIENCE}
+    github: # GitHub auth required for workflow data for service components
+      clientId: ${AUTH_GITHUB_CLIENT_ID}
+      clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}"
