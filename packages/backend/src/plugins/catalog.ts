@@ -1,6 +1,6 @@
 import { CatalogBuilder } from '@backstage/plugin-catalog-backend';
 import { GithubEntityProvider } from '@backstage/plugin-catalog-backend-module-github';
-import { GithubOrgEntityProvider } from '@backstage/plugin-catalog-backend-module-github';
+import { GithubMultiOrgEntityProvider } from '@backstage/plugin-catalog-backend-module-github';
 import { ScaffolderEntitiesProcessor } from '@backstage/plugin-scaffolder-backend';
 import { Router } from 'express';
 import { PluginEnvironment } from '../types';
@@ -18,9 +18,12 @@ export default async function createPlugin(
   );
   // GitHub Org Provider without events support
   builder.addEntityProvider(
-    GithubOrgEntityProvider.fromConfig(env.config, {
+    GithubMultiOrgEntityProvider.fromConfig(env.config, {
       id: 'production',
-      orgUrl: 'https://github.com/mozilla-services',
+      githubUrl: 'https://github.com',
+      // Set the following to list the GitHub orgs you wish to ingest from. You can
+      // also omit this option to ingest all orgs accessible by your GitHub integration
+      orgs: ['mozilla-services', 'mozilla'],
       logger: env.logger,
       schedule: env.scheduler.createScheduledTaskRunner({
         frequency: { minutes: 15 },
