@@ -74,7 +74,7 @@ catalog:
         validateLocationsExist: true
         filters:
           branch: 'main'
-          repository: 'fxa' # Regex
+          repository: '(fxa|blurts-server)' # Regex
           visibility:
             - public
         schedule:
