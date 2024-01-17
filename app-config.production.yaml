@@ -9,6 +9,11 @@ backend:
   # callers. When its value is "http://localhost:7007", it's strictly private
   # and can't be reached by others.
   baseUrl: https://${BASE_URL}
+
+  reading:
+    allow:
+      - host: api.accounts.firefox.com
+
   # The listener can also be expressed as a single <host>:<port> string. In this case we bind to
   # all interfaces, the most permissive setting. The right value depends on your specific deployment.
   listen: ':${PORT}'
