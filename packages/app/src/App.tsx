@@ -13,7 +13,7 @@ import { orgPlugin } from '@backstage/plugin-org';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
 import { SearchPage } from '@backstage/plugin-search';
-import { TechRadarPage } from '@backstage/plugin-tech-radar';
+import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 import { TechDocsIndexPage, techdocsPlugin, TechDocsReaderPage } from '@backstage/plugin-techdocs';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
