@@ -4,6 +4,10 @@ import {
   authProvidersExtensionPoint,
   createProxyAuthProviderFactory,
 } from '@backstage/plugin-auth-node';
+import {
+  stringifyEntityRef,
+  DEFAULT_NAMESPACE,
+} from '@backstage/catalog-model';
 
 export const gcpIapCustomAuth = createBackendModule({
   pluginId: 'auth',
@@ -27,16 +31,22 @@ export const gcpIapCustomAuth = createBackendModule({
 
               const [name, domain] = email.split('@');
               if (domain !== 'mozilla.com') {
-                throw new Error(`Login failed, this email ${email} does not belong to the expected domain`,)
+                throw new Error(
+                  `Login failed, this email ${email} does not belong to the expected domain`,
+                );
               }
 
-              // This helper function handles sign-in by looking up a user in the catalog.
-              // The lookup can be done either by reference, annotations, or custom filters.
-              //
-              // The helper also issues a token for the user, using the standard group
-              // membership logic to determine the ownership references of the user.
-              return ctx.signInWithCatalogUser({
-                entityRef: { name },
+              const userEntity = stringifyEntityRef({
+                kind: 'User',
+                name,
+                namespace: DEFAULT_NAMESPACE,
+              });
+
+              return ctx.issueToken({
+                claims: {
+                  sub: userEntity,
+                  ent: [userEntity],
+                },
               });
             },
           }),
