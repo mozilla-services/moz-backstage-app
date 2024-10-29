@@ -39,7 +39,7 @@ export const gcpIapCustomAuthProvider = createBackendModule({
               // try to resolve an existing gh username to the name part of the email
               // otherwise, issue a log in token.
               try {
-                return ctx.signInWithCatalogUser({ entityRef: { name } });
+                return await ctx.signInWithCatalogUser({ entityRef: { name } });
               } catch (_) {
                 const userEntity = stringifyEntityRef({
                   kind: 'User',
