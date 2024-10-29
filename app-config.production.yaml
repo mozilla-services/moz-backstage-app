@@ -90,7 +90,7 @@ catalog:
 auth:
   environment: production
   providers:
-    gcp-iap:
+    gcpIap:
       audience: ${GCP_IAP_AUDIENCE}
     github: # GitHub auth required for workflow data for service components
       production:
