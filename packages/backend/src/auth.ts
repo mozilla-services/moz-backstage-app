@@ -9,7 +9,7 @@ import {
   DEFAULT_NAMESPACE,
 } from '@backstage/catalog-model';
 
-export const gcpIapCustomAuth = createBackendModule({
+export const gcpIapCustomAuthProvider = createBackendModule({
   pluginId: 'auth',
   moduleId: 'custom-gcp-iap-auth-provider',
   register(reg) {
@@ -36,26 +36,24 @@ export const gcpIapCustomAuth = createBackendModule({
                 );
               }
 
-              const catalogUser = await ctx.findCatalogUser({
-                entityRef: { name },
-              });
-
-              if (catalogUser && catalogUser.entity) {
+              // try to resolve an existing gh username to the name part of the email
+              // otherwise, issue a log in token.
+              try {
                 return ctx.signInWithCatalogUser({ entityRef: { name } });
+              } catch (_) {
+                const userEntity = stringifyEntityRef({
+                  kind: 'User',
+                  name,
+                  namespace: DEFAULT_NAMESPACE,
+                });
+
+                return ctx.issueToken({
+                  claims: {
+                    sub: userEntity,
+                    ent: [userEntity],
+                  },
+                });
               }
-
-              const userEntity = stringifyEntityRef({
-                kind: 'User',
-                name,
-                namespace: DEFAULT_NAMESPACE,
-              });
-
-              return ctx.issueToken({
-                claims: {
-                  sub: userEntity,
-                  ent: [userEntity],
-                },
-              });
             },
           }),
         });
