@@ -36,6 +36,14 @@ export const gcpIapCustomAuth = createBackendModule({
                 );
               }
 
+              const catalogUser = await ctx.findCatalogUser({
+                entityRef: { name },
+              });
+
+              if (catalogUser && catalogUser.entity) {
+                return ctx.signInWithCatalogUser({ entityRef: { name } });
+              }
+
               const userEntity = stringifyEntityRef({
                 kind: 'User',
                 name,
