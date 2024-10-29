@@ -39,7 +39,6 @@ import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import {
   configApiRef,
-  googleAuthApiRef,
   useApi,
 } from '@backstage/core-plugin-api';
 
@@ -70,7 +69,7 @@ const app = createApp({
       if (configApi.getOptionalString('auth.environment') === 'development') {
         return <SignInPage {...props} providers={['guest']} />;
       }
-      return <ProxiedSignInPage {...props} provider="gcp-iap" />;
+      return <ProxiedSignInPage {...props} provider="gcpIap" />;
     },
   },
 });
