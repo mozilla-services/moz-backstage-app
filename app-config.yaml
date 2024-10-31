@@ -1,6 +1,14 @@
 app:
   title: Moz Backstage App
   baseUrl: http://localhost:3000
+  analytics:
+    glean: 
+      appId: moz_backstage
+      enabled: true
+      debug: 
+        logging: false
+        tag: backstage-dev
+      environment: development
 
 organization:
   name: Mozilla

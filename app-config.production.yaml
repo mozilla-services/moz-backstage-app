@@ -1,6 +1,11 @@
 app:
   # Should be the same as backend.baseUrl when using the `app-backend` plugin.
   baseUrl: https://${BASE_URL}
+  analytics:
+    glean: 
+      appId: moz_backstage
+      enabled: true
+      environment: production
 
 backend:
   # Note that the baseUrl should be the URL that the browser and other clients

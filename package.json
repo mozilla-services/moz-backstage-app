@@ -5,6 +5,10 @@
   "engines": {
     "node": "18 || 20"
   },
+  "repository": {
+    "url": "git+https://github.com/mozilla-services/moz-backstage-app.git",
+    "type": "git"
+  },
   "scripts": {
     "dev": "yarn workspaces foreach -A --include backend --include app --parallel -v -i run start",
     "start": "yarn workspace app start",
