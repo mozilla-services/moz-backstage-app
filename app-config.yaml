@@ -7,7 +7,7 @@ app:
       enabled: true
       debug: 
         logging: false
-        tag: wstuckey-dev
+        tag: backstage-dev
       environment: development
 
 organization:

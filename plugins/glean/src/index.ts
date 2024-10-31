@@ -22,7 +22,8 @@ export class GleanAnalytics implements AnalyticsApi {
   private constructor(appId: string, enabled: boolean, config: object, debug?: DebugConfig) {
     if (debug) {
       Glean.setLogPings(!!debug.logging);
-      Glean.setDebugViewTag(debug.tag || '');
+      // set the debug tag if it is defined
+      debug.tag && Glean.setDebugViewTag(debug.tag);
     }
     Glean.initialize(appId, enabled, config);
   }
@@ -32,6 +33,7 @@ export class GleanAnalytics implements AnalyticsApi {
     const enabled = config.getBoolean('app.analytics.glean.enabled');
     const debug = config.getOptional('app.analytics.glean.debug') as DebugConfig;
     const environment = config.getString('app.analytics.glean.environment');
+
     return new GleanAnalytics(appId, enabled, {
       enableAutoPageLoadEvents: false,
       enabledAutoElementClickEvents: false,
