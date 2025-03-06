@@ -6,3 +6,4 @@ plugins/*/dist
 plugins/*/node_modules
 .yarn/cache
 .yarn/install-state.gz
+.git
