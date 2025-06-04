@@ -24,7 +24,7 @@ backend.add(gcpIapCustomAuthProvider);
 // See https://backstage.io/docs/auth/guest/provider
 
 // catalog plugin
-backend.add(import('@backstage/plugin-catalog-backend/alpha'));
+backend.add(import('@backstage/plugin-catalog-backend'));
 backend.add(
   import('@backstage/plugin-catalog-backend-module-scaffolder-entity-model'),
 );
@@ -52,5 +52,13 @@ backend.add(import('@backstage/plugin-search-backend-module-techdocs/alpha'));
 
 // kubernetes
 backend.add(import('@backstage/plugin-kubernetes-backend/alpha'));
+
+// github
+backend.add(import('@backstage/plugin-catalog-backend-module-github'));
+backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
+backend.add(import('@backstage/plugin-events-backend-module-github'));
+
+// events
+backend.add(import('@backstage/plugin-events-backend'));
 
 backend.start();

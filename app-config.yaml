@@ -87,6 +87,14 @@ scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
 catalog:
+  providers:
+    githubOrg:
+      id: mozilla
+      githubUrl: https://github.com
+      orgs: ['mozilla', 'mozilla-services']
+      schedule:
+        frequency: { hours: 1 }
+        timeout: { minutes: 50 }
   import:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
