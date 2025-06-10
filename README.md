@@ -26,7 +26,7 @@ To start the app, run:
 ```sh
 nvm use
 yarn install
-yarn dev
+yarn start
 ```
 
 If using a `.env` file for the environment variables:
