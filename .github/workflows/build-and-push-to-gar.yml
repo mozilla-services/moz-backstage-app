@@ -30,6 +30,10 @@ jobs:
       - id: checkout-application-repo
         uses: actions/checkout@v4
 
+      - id: set-tag
+        run: |-
+          echo TAG=$(git describe --tags --abbrev=7) |tee -a ${GITHUB_OUTPUT}
+
       - uses: docker/setup-buildx-action@v3
 
       - id: gcp-auth
@@ -51,7 +55,7 @@ jobs:
         with:
           context: . # Expecting the multi-stage build from here: https://backstage.io/docs/deployment/docker/#multi-stage-build
           tags: |
-            us-docker.pkg.dev/${{ matrix.gcp_project_id }}/${{ matrix.gar_repo }}/moz-backstage-app:${{ github.sha }}
+            us-docker.pkg.dev/${{ matrix.gcp_project_id }}/${{ matrix.gar_repo }}/moz-backstage-app:${{ steps.set-tag.outputs.TAG }}
             us-docker.pkg.dev/${{ matrix.gcp_project_id }}/${{ matrix.gar_repo }}/moz-backstage-app:latest
 
           push: true
