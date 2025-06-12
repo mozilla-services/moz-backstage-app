@@ -1,0 +1,59 @@
+---
+name: build and push to GAR
+on:
+  push:
+    branches:
+      - main
+
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  build-and-push:
+    strategy:
+      matrix:
+        include:
+          - gcp_project_id: moz-fx-backstage-prod
+            gar_repo: backstage-prod
+
+          - gcp_project_id: moz-fx-rapid-release-mode-1cb6
+            gar_repo: rapid-release-model-prod
+
+    name: build and push
+    runs-on: ubuntu-latest
+    environment: build
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - id: checkout-application-repo
+        uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          service_account: artifact-writer@${{ matrix.gcp_project_id }}.iam.gserviceaccount.com
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
+
+      - uses: docker/login-action@v3
+        name: Docker login
+        with:
+          registry: us-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.gcp-auth.outputs.access_token }}
+
+      - id: build-and-push-backstage
+        uses: docker/build-push-action@v6
+        with:
+          context: . # Expecting the multi-stage build from here: https://backstage.io/docs/deployment/docker/#multi-stage-build
+          tags: |
+            us-docker.pkg.dev/${{ matrix.gcp_project_id }}/${{ matrix.gar_repo }}/moz-backstage-app:${{ github.sha }}
+            us-docker.pkg.dev/${{ matrix.gcp_project_id }}/${{ matrix.gar_repo }}/moz-backstage-app:latest
+
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
