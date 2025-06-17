@@ -30,7 +30,7 @@ export const gcpIapCustomAuthProvider = createBackendModule({
               }
 
               const [name, domain] = email.split('@');
-              if (domain !== 'mozilla.com') {
+              if (!domain.match(/^(firefox\.gcp\.)?mozilla\.com$/)) {
                 throw new Error(
                   `Login failed, this email ${email} does not belong to the expected domain`,
                 );
