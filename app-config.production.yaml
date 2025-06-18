@@ -43,8 +43,6 @@ backend:
   cache:
     store: redis
     connection: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT} # Don't set username when using authstring /w older redis versions
-    useRedisSets: true
-
 
 integrations:
   github:
