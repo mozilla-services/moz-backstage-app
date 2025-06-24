@@ -104,6 +104,6 @@ COPY --chown=app:app catalog-info.yaml ./
 COPY --chown=app:app scaffolder-templates/ ./scaffolder-templates/
 
 # This switches many Node.js dependencies to production mode.
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]

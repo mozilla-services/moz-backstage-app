@@ -54,12 +54,24 @@ backend.add(import('@backstage/plugin-search-backend-module-techdocs'));
 // kubernetes
 backend.add(import('@backstage/plugin-kubernetes-backend'));
 
-// github
-backend.add(import('@backstage/plugin-catalog-backend-module-github'));
-backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
-backend.add(import('@backstage/plugin-events-backend-module-github'));
+//
+// add github auth provider plugin
+//
+backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
 
-// events
-backend.add(import('@backstage/plugin-events-backend'));
+//
+// add github discovery plugin
+//
+backend.add(import('@backstage/plugin-catalog-backend-module-github'));
+
+//
+// add github org plugin
+//
+backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
+
+//
+// add github events plugin
+//
+backend.add(import('@backstage/plugin-events-backend-module-github'));
 
 backend.start();
