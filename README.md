@@ -4,11 +4,13 @@
 
 ### Dependencies
 
-Install and run Postgres from docker:
+Run postgres & redis backends with docker-compose:
 
 ```sh
-docker run -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres:15
+docker compose up
 ```
+
+> `docker-compose.yaml` defines volumes for postgres & redis to persist data for as long as the compose stack isn't destroyed.
 
 Set environment variables for postgres (or use `.env` file):
 

@@ -71,7 +71,7 @@ const app = createApp({
     SignInPage: props => {
       const configApi = useApi(configApiRef);
 
-      if (configApi.getOptionalString('auth.environment') === 'development') {
+      if (configApi.getOptionalString('auth.environment') === 'dev') {
         return <SignInPage {...props} providers={['guest']} />;
       }
 
