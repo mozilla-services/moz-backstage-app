@@ -43,6 +43,11 @@ import {
 
 // import { TechRadarPage } from '@backstage-community/plugin-tech-radar';
 
+//
+// add github auth provider
+//
+import {githubAuthApiRef} from '@backstage/core-plugin-api';
+
 const app = createApp({
   apis,
   bindRoutes({ bind }) {
@@ -65,10 +70,12 @@ const app = createApp({
   components: {
     SignInPage: props => {
       const configApi = useApi(configApiRef);
-      if (configApi.getOptionalString('auth.environment') === 'development') {
+
+      if (configApi.getOptionalString('auth.environment') === 'dev') {
         return <SignInPage {...props} providers={['guest']} />;
       }
-      return <ProxiedSignInPage {...props} provider="gcpIap" />;
+
+      return <SignInPage {...props} providers={[{id: 'github-auth-provider', title: 'GitHub', message: 'Sign in using GitHub', apiRef: githubAuthApiRef}]} />;
     },
   },
 });
