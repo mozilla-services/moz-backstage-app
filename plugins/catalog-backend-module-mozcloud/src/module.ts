@@ -6,28 +6,37 @@ import {
   coreServices,
   createBackendModule,
   SchedulerServiceTaskRunner,
+  LoggerService,
 } from '@backstage/backend-plugin-api';
 
 import { catalogProcessingExtensionPoint } from '@backstage/plugin-catalog-node/alpha';
 
-import { ANNOTATION_LOCATION, ANNOTATION_ORIGIN_LOCATION, Entity, GroupEntityV1alpha1 } from '@backstage/catalog-model';
-import { EntityProvider, EntityProviderConenction } from '@backstage/plugin-catalog-node';
+import { ANNOTATION_LOCATION, ANNOTATION_ORIGIN_LOCATION, Entity, GroupEntityV1alpha1, UserEntityV1alpha1 } from '@backstage/catalog-model';
+import { EntityProvider, EntityProviderConnection } from '@backstage/plugin-catalog-node';
 
+import { DefaultGithubCredentialsProvider, ScmIntegrations } from '@backstage/integration';
+
+import { Config } from '@backstage/config';
+
+import { Octokit } from '@octokit/rest';
 
 export class MozcloudEntityProvider implements EntityProvider {
   private readonly env: string;
   private connection?: EntityProviderConnection;
   private taskRunner: SchedulerServiceTaskRunner;
-  private logger: coreServices.Logger;
+  private logger: LoggerService;
+  private config: Config;
 
   constructor(
     env: string,
     taskRunner: SchedulerServiceTaskRunner,
-    logger: coreServices.Logger,
+    logger: LoggerService,
+    config: Config,
   ) {
     this.env = env;
     this.taskRunner = taskRunner;
     this.logger = logger;
+    this.config = config;
   }
 
   getProviderName(): string {
@@ -50,20 +59,44 @@ export class MozcloudEntityProvider implements EntityProvider {
       throw new Error("not initialized");
     }
 
-    // parse workgroup files
-    let workgroup_dir = "/home/ahoneiser/dev/mozilla/global-platform-admin/google-workspace-management/tf/workgroups";
-    let workgroup_files = await fs.readdir(workgroup_dir);
+    let owner = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.owner");
+    let repo = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.repo");
+    let path = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.path");
+    let ref = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.ref");
 
+    // do some github experiments first
+    let integrations = ScmIntegrations.fromConfig(this.config);
+    let credentialsProvider = DefaultGithubCredentialsProvider.fromIntegrations(integrations);
+    let { token } = await credentialsProvider.getCredentials({ url: `https://github.com/${owner}/${repo}`});
+    let octokit = new Octokit({ auth: token });
+
+    let response = await octokit.repos.getContent({
+      owner: owner,
+      repo: repo,
+      path: path,
+      ref: ref,
+    });
+
+    let items = response.data;
     let workgroups = [];
 
-    for (let workgroup_file of workgroup_files) {
-      let full_qualified_path = path.join(workgroup_dir, workgroup_file);
+    if (Array.isArray(items)) {
+      for (let item of items) {
+        if (item.type === "file" && item.name.toLowerCase().endsWith("yaml")) {
+          this.logger.info(`.. fetching file: ${item.name}`);
 
-      if (workgroup_file.toLowerCase().endsWith("yaml")) {
-        let content = await fs.readFile(full_qualified_path, "utf8");
-        let workgroup = YAML.parse(content);
+          let fileResponse = await octokit.repos.getContent({
+            owner: owner,
+            repo: repo,
+            path: item.path,
+            ref: ref,
+          });
 
-        workgroups.push(workgroup);
+          let content = Buffer.from((fileResponse.data as any).content, "base64").toString("utf-8");
+          let workgroup = YAML.parse(content);
+
+          workgroups.push(workgroup);
+        }
       }
     }
 
@@ -179,7 +212,7 @@ export class MozcloudEntityProvider implements EntityProvider {
     }
 
     this.logger.info(`found ${groupResources.size} mozcloud workgroups`)
-    this.logger.info(`found ${userResources.size} mozcloud workgroups`)
+    this.logger.info(`found ${userResources.size} mozcloud users`)
 
     let allEntities = Array.from(groupResources.values()).concat(Array.from(userResources.values())).map(entity => ({
       entity, locationKey: `mozcloud-provider:${this.env}`,
@@ -202,14 +235,15 @@ export const catalogModuleMozcloud = createBackendModule({
         logger: coreServices.logger,
         catalog: catalogProcessingExtensionPoint,
         scheduler: coreServices.scheduler,
+        config: coreServices.rootConfig,
       },
-      async init({ logger, catalog, scheduler }) {
+      async init({ logger, catalog, scheduler, config }) {
         const taskRunner = scheduler.createScheduledTaskRunner({
           frequency: { seconds: 30 },
           timeout: { seconds: 10 },
         });
 
-        const mozcloud = new MozcloudEntityProvider("dev", taskRunner, logger);
+        const mozcloud = new MozcloudEntityProvider("dev", taskRunner, logger, config);
         catalog.addEntityProvider(mozcloud);
       },
     });

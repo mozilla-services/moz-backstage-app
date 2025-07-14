@@ -72,10 +72,13 @@ const app = createApp({
       const configApi = useApi(configApiRef);
 
       if (configApi.getOptionalString('auth.environment') === 'dev') {
-        return <SignInPage {...props} providers={['guest']} />;
+        return <SignInPage {...props} providers={[
+          'guest',
+          {id: 'github-auth-provider', title: 'GitHub', message: 'Sign in using GitHub', apiRef: githubAuthApiRef},
+        ]} />;
       }
 
-      return <SignInPage {...props} providers={[{id: 'github-auth-provider', title: 'GitHub', message: 'Sign in using GitHub', apiRef: githubAuthApiRef}]} />;
+      return <ProxiedSignInPage {...props} provider="gcpIap" />;
     },
   },
 });
