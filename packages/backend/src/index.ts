@@ -60,11 +60,6 @@ backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
 backend.add(import('@backstage/plugin-catalog-backend-module-github'));
 
 //
-// add github org plugin
-//
-backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
-
-//
 // add github events plugin
 //
 backend.add(import('@backstage/plugin-events-backend-module-github'));
