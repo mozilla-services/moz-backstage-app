@@ -59,74 +59,76 @@ export class MozcloudEntityProvider implements EntityProvider {
       throw new Error("not initialized");
     }
 
-    let owner = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.owner");
-    let repo = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.repo");
-    let path = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.path");
-    let ref = this.config.getString("catalog.providers.mozcloud.entitySourceLocation.ref");
+    const entitySourceLocation: { owner: string, repo: string, workgroupsPath: string, tenantsPath: string, ref: string } = this.config.get("catalog.providers.mozcloud.entitySourceLocation");
 
     // do some github experiments first
-    let integrations = ScmIntegrations.fromConfig(this.config);
-    let credentialsProvider = DefaultGithubCredentialsProvider.fromIntegrations(integrations);
-    let { token } = await credentialsProvider.getCredentials({ url: `https://github.com/${owner}/${repo}`});
-    let octokit = new Octokit({ auth: token });
+    const integrations = ScmIntegrations.fromConfig(this.config);
+    const credentialsProvider = DefaultGithubCredentialsProvider.fromIntegrations(integrations);
+    const { token } = await credentialsProvider.getCredentials({ url: `https://github.com/${entitySourceLocation.owner}/${entitySourceLocation.repo}`});
+    const octokit = new Octokit({ auth: token });
 
-    let response = await octokit.repos.getContent({
-      owner: owner,
-      repo: repo,
-      path: path,
-      ref: ref,
+    const response = await octokit.repos.getContent({
+      owner: entitySourceLocation.owner,
+      repo: entitySourceLocation.repo,
+      path: entitySourceLocation.workgroupsPath,
+      ref: entitySourceLocation.ref,
     });
 
-    let items = response.data;
-    let workgroups = [];
+    const items = response.data;
+    const workgroups = [];
 
     if (Array.isArray(items)) {
-      for (let item of items) {
+      for (const item of items) {
         if (item.type === "file" && item.name.toLowerCase().endsWith("yaml")) {
-          this.logger.info(`.. fetching file: ${item.name}`);
+          this.logger.info(`.. processing workgroup file: ${item.name}`);
 
-          let fileResponse = await octokit.repos.getContent({
-            owner: owner,
-            repo: repo,
+          const fileResponse = await octokit.repos.getContent({
+            owner: entitySourceLocation.owner,
+            repo: entitySourceLocation.repo,
             path: item.path,
-            ref: ref,
+            ref: entitySourceLocation.ref,
           });
 
-          let content = Buffer.from((fileResponse.data as any).content, "base64").toString("utf-8");
-          let workgroup = YAML.parse(content);
+          const content = Buffer.from((fileResponse.data as any).content, "base64").toString("utf-8");
+          const workgroup = YAML.parse(content);
 
           workgroups.push(workgroup);
         }
       }
     }
 
-    let workgroup_emails = new Map();
+    const workgroup_emails = new Map();
 
-    for (let workgroup of workgroups) {
+    for (const workgroup of workgroups) {
       workgroup_emails.set(workgroup.workgroup, new Map());
 
-      for (let subgroup of workgroup.subgroups) {
+      for (const subgroup of workgroup.subgroups) {
         workgroup_emails.get(workgroup.workgroup).set(subgroup.name, subgroup.members ?? []);
       }
     }
 
-    for (let workgroup of workgroups) {
-      for (let subgroup of workgroup.subgroups) {
-        for (let subworkgroup of subgroup.workgroups ?? []) {
-          let parts = subworkgroup.split("/");
+    for (const workgroup of workgroups) {
+      for (const subgroup of workgroup.subgroups) {
+        for (const subworkgroup of subgroup.workgroups ?? []) {
+          const parts = subworkgroup.split("/");
 
-          for (let email of workgroup_emails.get(parts[0]).get(parts[1])) {
-            workgroup_emails.get(workgroup.workgroup).get(subgroup.name).push(email);
+          if (workgroup_emails.get(parts[0]).get(parts[1])) {
+            for (const email of workgroup_emails.get(parts[0]).get(parts[1])) {
+              workgroup_emails.get(workgroup.workgroup).get(subgroup.name).push(email);
+            }
+
+          } else {
+            this.logger.error(`workgroup ${workgroup.workgroup}/${subgroup.name} tries to inherit members from unknown: ${subworkgroup}`);
           }
         }
       }
     }
 
     // build group resources
-    let groupResources = new Map();
+    const groupResources = new Map();
 
-    for (let workgroup of workgroup_emails.keys()) {
-      let groupEntity: GroupEntityV1alpha1 = {
+    for (const workgroup of workgroup_emails.keys()) {
+      const groupEntity: GroupEntityV1alpha1 = {
         apiVersion: "backstage.io/v1alpha1",
         kind: "Group",
         metadata: {
@@ -147,10 +149,10 @@ export class MozcloudEntityProvider implements EntityProvider {
 
       groupResources.set(workgroup, groupEntity);
 
-      for (let subgroup of workgroup_emails.get(workgroup).keys()) {
+      for (const subgroup of workgroup_emails.get(workgroup).keys()) {
         groupResources.get(workgroup).spec.children.push(`${workgroup}--${subgroup}`);
-        
-        let subgroupEntity: GroupEntityV1alpha1 = {
+
+        const subgroupEntity: GroupEntityV1alpha1 = {
           apiVersion: "backstage.io/v1alpha1",
           kind: "Group",
           metadata: {
@@ -174,15 +176,15 @@ export class MozcloudEntityProvider implements EntityProvider {
     }
 
     // build user resources
-    let userResources = new Map();
+    const userResources = new Map();
 
-    for (let workgroup of workgroup_emails.keys()) {
-      for (let subgroup of workgroup_emails.get(workgroup).keys()) {
-        for (let email of workgroup_emails.get(workgroup).get(subgroup)) {
-          let parts = email.split("@");
+    for (const workgroup of workgroup_emails.keys()) {
+      for (const subgroup of workgroup_emails.get(workgroup).keys()) {
+        for (const email of workgroup_emails.get(workgroup).get(subgroup)) {
+          const parts = email.split("@");
 
           if (!userResources.has(parts[0])) {
-            let userEntity: UserEntityV1alpha1 = {
+            const userEntity: UserEntityV1alpha1 = {
               apiVersion: "backstage.io/v1alpha1",
               kind: "User",
               metadata: {
@@ -214,7 +216,7 @@ export class MozcloudEntityProvider implements EntityProvider {
     this.logger.info(`found ${groupResources.size} mozcloud workgroups`)
     this.logger.info(`found ${userResources.size} mozcloud users`)
 
-    let allEntities = Array.from(groupResources.values()).concat(Array.from(userResources.values())).map(entity => ({
+    const allEntities = Array.from(groupResources.values()).concat(Array.from(userResources.values())).map(entity => ({
       entity, locationKey: `mozcloud-provider:${this.env}`,
     }));
 
@@ -238,9 +240,14 @@ export const catalogModuleMozcloud = createBackendModule({
         config: coreServices.rootConfig,
       },
       async init({ logger, catalog, scheduler, config }) {
+        const frequency_minutes: number = config.getOptionalNumber("catalog.providers.mozcloud.schedule.frequency.minutes") || 60;
+        const timeout_seconds : number = config.getOptionalNumber("catalog.providers.mozcloud.schedule.timeout.seconds") || 10;
+        const initialDelay_seconds : number = config.getOptionalNumber("catalog.providers.mozcloud.schedule.initialDelay.seconds") || 30;
+
         const taskRunner = scheduler.createScheduledTaskRunner({
-          frequency: { seconds: 30 },
-          timeout: { seconds: 10 },
+          frequency: { minutes: frequency_minutes },
+          timeout: { seconds: timeout_seconds },
+          initialDelay: { seconds: initialDelay_seconds },
         });
 
         const mozcloud = new MozcloudEntityProvider("dev", taskRunner, logger, config);
