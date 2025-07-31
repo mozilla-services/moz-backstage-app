@@ -8,7 +8,7 @@
     "plugins/*/dev",
     "plugins/*/migrations"
   ],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "app-config.local.yaml"],
   "compilerOptions": {
     "noUnusedLocals": false,
     "noUnusedParameters": false,

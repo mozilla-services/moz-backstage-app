@@ -49,9 +49,6 @@ backend.add(import('@backstage/plugin-search-backend-module-pg'));
 backend.add(import('@backstage/plugin-search-backend-module-catalog'));
 backend.add(import('@backstage/plugin-search-backend-module-techdocs'));
 
-// kubernetes
-backend.add(import('@backstage/plugin-kubernetes-backend'));
-
 //
 // add github auth provider plugin
 //
@@ -63,13 +60,19 @@ backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
 backend.add(import('@backstage/plugin-catalog-backend-module-github'));
 
 //
-// add github org plugin
-//
-backend.add(import('@backstage/plugin-catalog-backend-module-github-org'));
-
-//
 // add github events plugin
 //
 backend.add(import('@backstage/plugin-events-backend-module-github'));
+
+//
+// Google IAP auth provider
+//
+backend.add(import('@backstage/plugin-auth-backend-module-gcp-iap-provider'));
+
+//
+// mozcloud module for the catalog backend plugin
+// -- this will read mozcloud workgroup definitions and generate group & user entities for us
+//
+backend.add(import('@internal/plugin-catalog-backend-module-mozcloud'));
 
 backend.start();

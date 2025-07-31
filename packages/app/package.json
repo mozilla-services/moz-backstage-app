@@ -29,7 +29,6 @@
     "@backstage/plugin-catalog-graph": "^0.4.19",
     "@backstage/plugin-catalog-import": "^0.13.0",
     "@backstage/plugin-catalog-react": "^1.18.0",
-    "@backstage/plugin-kubernetes": "^0.12.7",
     "@backstage/plugin-org": "^0.6.39",
     "@backstage/plugin-permission-react": "^0.4.34",
     "@backstage/plugin-scaffolder": "^1.31.0",

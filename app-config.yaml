@@ -89,7 +89,7 @@ catalog:
 
   locations:
     - type: file
-      target: /app/scaffolder-templates/*/template.yaml
+      target: scaffolder-templates/*/template.yaml
       rules:
         - allow:
             - Template
